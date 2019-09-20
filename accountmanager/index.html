@@ -730,8 +730,21 @@
                     document.getElementById('pic1').style.visibility = "hidden";
                     document.getElementById('pic2').style.visibility = "hidden";
                     document.getElementById('startHead').style.visibility = "hidden";
-                    document.getElementById('endHead').style.visibility = "visible";                 
-                     $("#Container").height($('#imageDiv').height());
+                    document.getElementById('endHead').style.visibility = "visible";
+                    var height = $(window).height(); 
+                    $("#Container").height(height);
+                    $("#Container").height($('#imageDiv').height());
+                        $win = $(window); 
+
+                $win.on('resize',function(){
+                clearTimeout(timer);
+                timer = setTimeout(function(){
+                    $("#frame").height($win.height());
+      
+                }, 500);
+
+                });
+
                     
                 }
             }
@@ -750,6 +763,18 @@
                     $("#Container").height($('#imageDiv').height());
                     document.getElementById('startHead').style.visibility = "hidden";
                     document.getElementById('endHead').style.visibility = "visible";
+                    //var height = $(window).height(); 
+                    //$("#Container").height(height);
+                    var timer,
+                $win = $(window); 
+
+                $win.on('resize',function(){
+                    clearTimeout(timer);
+                    timer = setTimeout(function(){
+                        $("#frame").height($win.height());
+                    }, 500);
+
+                });
                     
                 }
             }
