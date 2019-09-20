@@ -92,7 +92,7 @@ namespace accountmanager
             List<Image> images = new List<Image>();
             for (int i = 0; i < sqlDt.Rows.Count; i++)
             {
-                //only share user id and pass info with admins!
+                
 
                 images.Add(new Image
                 {
@@ -103,18 +103,9 @@ namespace accountmanager
 
                 });
 
-                //    Image pic = new Image();
+                
             }
-            //pic.picID = Convert.ToInt32(sqlDt.Rows[0]["picId"]);
-            //pic.keyWord = sqlDt.Rows[0]["keyWord"].ToString();
-            //pic.image = sqlDt.Rows[0]["image"].ToString();
-
-            //int count = images.Count;
-            //var randon = new Random();
-            //int number = randon.Next(count);
-            //var tmpImage = images[number];
-
-            //return tmpImage;
+            
             return images.ToArray();
         }
 
