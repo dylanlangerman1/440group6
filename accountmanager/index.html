@@ -21,6 +21,9 @@
             border-style:none;
             border-radius: 1rem;
 		}
+        #LikeDiv{
+            position:absolute;
+        }
         img{
       
             height: 50%;
@@ -61,7 +64,8 @@
             height: 94%;
             width: 100%;
             visibility:hidden;
-            
+                margin-top: .6vw;
+
 
         }
 
@@ -132,10 +136,13 @@
 			xtext-align: right;
 		}
         #pic1{
+                border-style: hidden;
+                border-radius: 5vw;
             
         }
         #pic2{
-
+            border-style: hidden;
+                border-radius: 5vw;
         }
 
 			.logonBox div {
@@ -234,7 +241,7 @@
         #Container{
             position:absolute;
             width: 100%;
-            xheight: 85%;
+            xheight: 94%;
         }
 		.chatInputPanel {
 			height: 40px;
@@ -249,6 +256,21 @@
 			display: flex;
 			flex-direction: row;
 		}
+        #middleDiv{
+            visibility: hidden;
+    display: inline-block;
+        margin-bottom: 1%;
+        }
+        #middleDiv img{
+                     text-align: center;
+    height: 6%;
+    width: 4vw;
+    padding: .8vw;
+    background-color: whitesmoke;
+    border-style: solid;
+    border-radius: 9vw;
+
+        }
         .rightDiv{
             xfloat:right;
             visibility:hidden;
@@ -286,7 +308,7 @@
         #mainDiv{
             height:100%;
             border-style: solid;
-            border-width: 4vw;
+            border-width: 2.2vw;
             border-color: powderblue;
             xborder-radius: 1rem;
             position:sticky;
@@ -353,6 +375,7 @@
                         document.getElementById('rightDiv').style.visibility = "visible";
                         document.getElementById('pic1').style.visibility = "visible";
                         document.getElementById('pic2').style.visibility = "visible";
+                        document.getElementById('middleDiv').style.visibility = "visible";
                         $('#logonId').val(''); $('#logonPassword').val('');
                         getImage();
                         counter = 2;
@@ -479,6 +502,27 @@
 					alert("boo...");
                 }      
 			});
+        }
+        var likeArray;
+        var arrLengt;
+         function getLikes() {
+			var webMethod = "AccountServices.asmx/GetLikes";
+            $.ajax({
+                type: "POST",
+                url: webMethod,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    likeArray = msg.d
+                    arrLength = likeArray.length;
+
+                   
+                    
+                },			
+				error: function (e) {
+					alert("boo...");
+                }      
+			});
 		}
 		
 
@@ -487,9 +531,11 @@
 		
         function back() {
             var div = document.getElementsByClassName('rightDiv');
+            document.getElementById('LikeDiv').style.visibility = "hidden";
             document.getElementById('pic1').style.visibility = "visible";
             document.getElementById('pic2').style.visibility = "visible";
             document.getElementById('frame').style.visibility = "hidden";
+            document.getElementById('middleDiv').style.visibility = "visible";
             picOne.likes = 0;
             picTwo.likes = 0;
             $("#Container").height(0);
@@ -549,6 +595,26 @@
 					alert("boo...");
 				}
 			});
+        }
+        function SavePic(picId) {
+			var webMethod = "AccountServices.asmx/SavePicture";
+			var parameters = "{\"picture\":\"" + encodeURI(picId) + "\"}";
+
+			$.ajax({
+				type: "POST",
+				url: webMethod,
+				data: parameters,
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function (msg) {
+						//showPanel('logonPanel');
+						//alert("saved");
+                   
+				},
+				error: function (e) {
+					alert("boo...");
+				}
+			});
 		}
 
 		//logs the user off both at the client and at the server
@@ -570,6 +636,7 @@
                         document.getElementById('rightDiv').style.visibility = "hidden";
                         document.getElementById('pic1').style.visibility = "hidden";
                         document.getElementById('pic2').style.visibility = "hidden";
+                        document.getElementById('middleDiv').style.visibility = "hidden";
 					}
 					else {
 					}
@@ -632,6 +699,57 @@
 				}
 			});
         }
+        //var arrDiv;
+        function LikePage() {
+            getLikes();
+           
+            for (var i = 0; i < arrLength; i++) {
+
+                var foodType = "'"+likeArray[i].toString() +"'"
+                $('<div id="smallLikeDiv'+i+'" class="smallLikeDiv" onclick="search('+foodType+');"></div>').appendTo('#LikeDiv');
+                $('#smallLikeDiv' + i).html(likeArray[i]);
+                
+                
+            }
+            document.getElementById('imageDiv').style.visibility = "hidden";
+            document.getElementById('pic1').style.visibility = "hidden";
+            document.getElementById('pic2').style.visibility = "hidden";
+            document.getElementById('LikeDiv').style.visibility = "visible";
+            document.getElementById('startHead').style.visibility = "hidden";
+                    document.getElementById('endHead').style.visibility = "visible";
+                    document.getElementById('rightDiv').style.visibility = "hidden";
+                    document.getElementById('backDiv').style.visibility = "visible";
+                    document.getElementById('middleDiv').style.visibility = "hidden";
+
+           
+        }
+        
+        
+        function showMap() {
+            document.getElementById('frame').style.visibility = "visible";
+                    document.getElementById('pic1').style.visibility = "hidden";
+                    document.getElementById('pic2').style.visibility = "hidden";
+                    document.getElementById('startHead').style.visibility = "hidden";
+                    document.getElementById('endHead').style.visibility = "visible";
+                    document.getElementById('rightDiv').style.visibility = "hidden";
+                    document.getElementById('backDiv').style.visibility = "visible";
+                    document.getElementById('middleDiv').style.visibility = "hidden";
+                    var height = $(window).height(); 
+                    $("#Container").height(height);
+            $("#Container").height($('#imageDiv').height());
+            var timer,
+                        $win = $(window); 
+
+                $win.on('resize',function(){
+                clearTimeout(timer);
+                timer = setTimeout(function(){
+                    $("#Container").height($('#imageDiv').height());
+      
+                }, 500);
+
+                });
+
+        }
         var counter = 2;
         var likes = 0;
         function likeImage(stay) {
@@ -642,27 +760,8 @@
                 counter++;
                 if (picOne.likes == 3) {
                     search(picOne.keyWord);
-                    document.getElementById('frame').style.visibility = "visible";
-                    document.getElementById('pic1').style.visibility = "hidden";
-                    document.getElementById('pic2').style.visibility = "hidden";
-                    document.getElementById('startHead').style.visibility = "hidden";
-                    document.getElementById('endHead').style.visibility = "visible";
-                    document.getElementById('rightDiv').style.visibility = "hidden";
-                      document.getElementById('backDiv').style.visibility = "visible";
-                    var height = $(window).height(); 
-                    $("#Container").height(height);
-                    $("#Container").height($('#imageDiv').height());
-                        $win = $(window); 
-
-                $win.on('resize',function(){
-                clearTimeout(timer);
-                timer = setTimeout(function(){
-                    $("#frame").height($win.height());
-      
-                }, 500);
-
-                });
-
+                    showMap();
+                    SavePic(picOne.keyWord);
                     
                 }
             }
@@ -675,27 +774,8 @@
                 counter++;
                 if (picTwo.likes == 3) {
                     search(picTwo.keyWord);
-                    document.getElementById('frame').style.visibility = "visible";
-                    document.getElementById('pic1').style.visibility = "hidden";
-                    document.getElementById('pic2').style.visibility = "hidden";
-                    $("#Container").height($('#imageDiv').height());
-                    document.getElementById('startHead').style.visibility = "hidden";
-                    document.getElementById('endHead').style.visibility = "visible";
-                    document.getElementById('rightDiv').style.visibility = "hidden";
-                    document.getElementById('backDiv').style.visibility = "visible";
-                    //var height = $(window).height(); 
-                    //$("#Container").height(height);
-                    var timer,
-                $win = $(window); 
-
-                $win.on('resize',function(){
-                    clearTimeout(timer);
-                    timer = setTimeout(function(){
-                        $("#frame").height($win.height());
-                    }, 500);
-
-                });
-                    
+                    showMap();
+                    SavePic(picTwo.keyWord);
                 }
             }
             
@@ -704,7 +784,8 @@
         
         function search(input){
          var location = input
-            document.getElementById("frame").src = "https://www.google.com/maps/embed/v1/search?key=AIzaSyBXzeuryA79A9tBdNTrQTKVLLVy7S4nkDM&q=" + "ice cream";
+            document.getElementById("frame").src = "https://www.google.com/maps/embed/v1/search?key=AIzaSyBXzeuryA79A9tBdNTrQTKVLLVy7S4nkDM&q=" + location;
+            showMap();
          
         }
         
@@ -721,6 +802,9 @@
 
                 <div class="leftDiv">
                     <strong><i> ThisOrThat!</i></strong>
+                </div>
+                <div id="middleDiv" onclick="LikePage();">
+                    <img src="http://icons.iconarchive.com/icons/google/noto-emoji-people-family-love/256/12146-yellow-heart-icon.png" alt="Alternate Text" />
                 </div>
                 <div class="rightDiv" id="rightDiv" onclick="LogOff();">
                     Sign Out
@@ -775,6 +859,9 @@
                 </div>
 
             </div>
+            <div id="LikeDiv">
+
+            </div>
             <div id="logonPanel" class="contentPanel logonPanel">
                 <div class="logonBox">
                     <form onsubmit="LogOn($('#logonId').val(), $('#logonPassword').val()); return false;">
@@ -810,6 +897,7 @@
 
 
     </div>
+    
     
    
    

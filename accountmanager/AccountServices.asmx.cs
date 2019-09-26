@@ -22,6 +22,13 @@ namespace accountmanager
     [System.Web.Script.Services.ScriptService]
     public class AccountServices : System.Web.Services.WebService
     {
+        [WebMethod(EnableSession = true)]
+        public string[] GetLikes()
+        {
+            string tmpStr = Likes(Session["id"].ToString());
+            string[] likeArray = tmpStr.Split(',');
+            return likeArray;
+        }
 
         //EXAMPLE OF A SIMPLE SELECT QUERY (PARAMETERS PASSED IN FROM CLIENT)
         [WebMethod(EnableSession = true)] //NOTICE: gotta enable session on each individual method
@@ -182,11 +189,11 @@ namespace accountmanager
             sqlConnection.Close();
         }
         [WebMethod(EnableSession = true)]
-        public void SavePicture(string id, string picture)
+        public void SavePicture(string picture)
         {
             //WRAPPING THE WHOLE THING IN AN IF STATEMENT TO CHECK IF THEY ARE AN ADMIN!
 
-            string current = Likes(id);
+            string current = Likes(Session["id"].ToString());
             string final = current+","+picture;
            string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["myDB"].ConnectionString;
             //this is a simple update, with parameters to pass in values
@@ -196,7 +203,7 @@ namespace accountmanager
                 MySqlCommand sqlCommand = new MySqlCommand(sqlSelect, sqlConnection);
 
                 sqlCommand.Parameters.AddWithValue("@likeValue", HttpUtility.UrlDecode(final));
-                sqlCommand.Parameters.AddWithValue("@idValue", HttpUtility.UrlDecode(id));
+                sqlCommand.Parameters.AddWithValue("@idValue", HttpUtility.UrlDecode(Session["id"].ToString()));
                 //sqlCommand.Parameters.AddWithValue("@fnameValue", HttpUtility.UrlDecode(firstName));
                 //sqlCommand.Parameters.AddWithValue("@lnameValue", HttpUtility.UrlDecode(lastName));
                 //sqlCommand.Parameters.AddWithValue("@emailValue", HttpUtility.UrlDecode(email));
