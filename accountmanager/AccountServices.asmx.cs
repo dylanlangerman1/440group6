@@ -41,7 +41,7 @@ namespace accountmanager
             string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["myDB"].ConnectionString;
             //here's our query.  A basic select with nothing fancy.  Note the parameters that begin with @
             //NOTICE: we added admin to what we pull, so that we can store it along with the id in the session
-            string sqlSelect = "SELECT userID FROM users WHERE username=@idValue and password=@passValue";
+            string sqlSelect = "SELECT userID, count FROM users WHERE username=@idValue and password=@passValue";
 
             //set up our connection object to be ready to use our connection string
             MySqlConnection sqlConnection = new MySqlConnection(sqlConnectString);
@@ -69,6 +69,7 @@ namespace accountmanager
                 //so we can check those values later on other method calls to see if they 
                 //are 1) logged in at all, and 2) and admin or not
                 Session["id"] = sqlDt.Rows[0]["userID"];
+                Session["index"] = sqlDt.Rows[0]["count"];
                 //Session["admin"] = sqlDt.Rows[0]["admin"];
                 success = true;
             }
@@ -78,11 +79,41 @@ namespace accountmanager
         
 
         [WebMethod(EnableSession = true)]
-        public bool LogOff()
+        public bool LogOff(int counter)
         {
+            if(counter > 0)
+            {
+                counter = counter - 2;
+            }
+            string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["myDB"].ConnectionString;
+            //this is a simple update, with parameters to pass in values
+            string sqlSelect = "update users set count=@indexValue where userID=@idValue";
+
+            MySqlConnection sqlConnection = new MySqlConnection(sqlConnectString);
+            MySqlCommand sqlCommand = new MySqlCommand(sqlSelect, sqlConnection);
+
+            sqlCommand.Parameters.AddWithValue("@indexValue", HttpUtility.UrlDecode(counter.ToString()));
+            sqlCommand.Parameters.AddWithValue("@idValue", HttpUtility.UrlDecode(Session["id"].ToString()));
+            //sqlCommand.Parameters.AddWithValue("@fnameValue", HttpUtility.UrlDecode(firstName));
+            //sqlCommand.Parameters.AddWithValue("@lnameValue", HttpUtility.UrlDecode(lastName));
+            //sqlCommand.Parameters.AddWithValue("@emailValue", HttpUtility.UrlDecode(email));
+            //sqlCommand.Parameters.AddWithValue("@idValue", HttpUtility.UrlDecode(id));
+
+            sqlConnection.Open();
+            //we're using a try/catch so that if the query errors out we can handle it gracefully
+            //by closing the connection and moving on
+            try
+            {
+                sqlCommand.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+            }
+            sqlConnection.Close();
             //if they log off, then we remove the session.  That way, if they access
             //again later they have to log back on in order for their ID to be back
             //in the session!
+            
             Session.Abandon();
             return true;
         }
@@ -148,6 +179,32 @@ namespace accountmanager
             }
 
             return tmpStr;
+        }
+        [WebMethod(EnableSession = true)]
+        public int CurrentCount()
+        {
+            //DataTable sqlDt = new DataTable("CurrentCount");
+            //string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["myDB"].ConnectionString;
+            //string sqlSelect = $"select count from users where userID={Session["id"]}";
+
+
+            //MySqlConnection sqlConnection = new MySqlConnection(sqlConnectString);
+            //MySqlCommand sqlCommand = new MySqlCommand(sqlSelect, sqlConnection);
+
+            //MySqlDataAdapter sqlDa = new MySqlDataAdapter(sqlCommand);
+            //sqlDa.Fill(sqlDt);
+            //int index = 0;
+
+            //for (int i = 0; i < sqlDt.Rows.Count; i++)
+            //{
+            //    index = Convert.ToInt32(sqlDt.Rows[i]["count"]);
+
+
+
+            //}
+            return Convert.ToInt32(Session["index"]);
+
+            //return index;
         }
 
         //EXAMPLE OF AN INSERT QUERY WITH PARAMS PASSED IN.  BONUS GETTING THE INSERTED ID FROM THE DB!

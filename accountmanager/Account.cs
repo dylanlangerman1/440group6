@@ -16,5 +16,6 @@ namespace accountmanager
 		public string firstName;
 		public string lastName;
 		public string email;
+        public int count;
 	}
 }

@@ -130,6 +130,26 @@
             float: left;
             text-align: center;
         }
+        .smallLikeDiv{
+            text-align: center;
+            xheight: 18%;
+            padding: 10vw;
+            background-color: white;
+            xmargin: 1vw;
+            border-style:solid;
+            border-color: powderblue;
+            border-top:0;
+            border-left:0;
+            border-right:0;
+
+
+        }
+        #LikeDiv{
+            width: 100%;
+            height: 94%;
+            background-color:white;
+            visibility:hidden;
+        }
 
 		.logonBox {
 			display: inline-block;
@@ -327,10 +347,10 @@
 	</style>
 
 	<script type="text/javascript">
-        $( document ).ready(function() {
-            getImage();
+        //$( document ).ready(function() {
+        //    getImage();
             
-        });
+        //});
 
 		
 
@@ -377,8 +397,10 @@
                         document.getElementById('pic2').style.visibility = "visible";
                         document.getElementById('middleDiv').style.visibility = "visible";
                         $('#logonId').val(''); $('#logonPassword').val('');
+                        getIndex();
                         getImage();
-                        counter = 2;
+                        
+                        counter = index;
 						//LoadAccounts();
 					}
 					else {
@@ -478,6 +500,25 @@
         
         var picOne;
         var picTwo;
+        var index;
+         function getIndex() {
+			var webMethod = "AccountServices.asmx/CurrentCount";
+            $.ajax({
+                type: "POST",
+                url: webMethod,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    index = msg.d
+
+                  
+                    
+                },			
+				error: function (e) {
+					alert("boo...");
+                }      
+			});
+        }
         function getImage() {
 			var webMethod = "AccountServices.asmx/GetImage";
             $.ajax({
@@ -488,12 +529,16 @@
                 success: function (msg) {
                     picArray = msg.d
 
-                    picOne = picArray[0];
-                    picTwo = picArray[1];
-                    var pic1Src = picArray[0].image;
+                    picOne = picArray[index];
+                    var pic1Src = picArray[index].image;
+                    index++;
+                    picTwo = picArray[index];
+                    var pic2Src = picArray[index].image;
+                    index++;
+                    
                     var img1 = document.getElementById('pic1');
                     img1.src = pic1Src;
-                    var pic2Src = picArray[1].image;
+                    
                     var img2 = document.getElementById('pic2');
                     img2.src = pic2Src;
                     
@@ -502,6 +547,17 @@
 					alert("boo...");
                 }      
 			});
+        }
+        var likePic = "";
+        function LikedImage(keyWord) {
+            for (var i = 0; i < likeArray.length; i++) {
+                if (picArray[i].keyWord == keyWord) {
+                    
+                }
+                
+
+            }
+           
         }
         var likeArray;
         var arrLengt;
@@ -543,6 +599,7 @@
             document.getElementById('startHead').style.visibility = "visible";
             document.getElementById('backDiv').style.visibility = "hidden";
             document.getElementById('rightDiv').style.visibility = "visible";
+            $('.smallLikeDiv').remove();
            
         }
 		
@@ -620,10 +677,13 @@
 		//logs the user off both at the client and at the server
 		function LogOff() {
 
-			var webMethod = "AccountServices.asmx/LogOff";
+            var webMethod = "AccountServices.asmx/LogOff";
+            var parameters = "{\"counter\":\"" + encodeURI(index) + "\"}";
+
 			$.ajax({
 				type: "POST",
-				url: webMethod,
+                url: webMethod,
+                data: parameters,
 				contentType: "application/json; charset=utf-8",
 				dataType: "json",
 				success: function (msg) {
@@ -637,6 +697,7 @@
                         document.getElementById('pic1').style.visibility = "hidden";
                         document.getElementById('pic2').style.visibility = "hidden";
                         document.getElementById('middleDiv').style.visibility = "hidden";
+                        $('.smallLikeDiv').remove();
 					}
 					else {
 					}
@@ -699,6 +760,7 @@
 				}
 			});
         }
+        
         //var arrDiv;
         function LikePage() {
             getLikes();
@@ -706,8 +768,18 @@
             for (var i = 0; i < arrLength; i++) {
 
                 var foodType = "'"+likeArray[i].toString() +"'"
-                $('<div id="smallLikeDiv'+i+'" class="smallLikeDiv" onclick="search('+foodType+');"></div>').appendTo('#LikeDiv');
+                $('<div id="smallLikeDiv' + i + '" class="smallLikeDiv" onclick="search(' + foodType + ');"></div>').appendTo('#LikeDiv');
+                var divID = document.getElementById('smallLikeDiv' + i);
                 $('#smallLikeDiv' + i).html(likeArray[i]);
+                for (var j = 0; j < picArray.length; j++) {
+                    if (picArray[j].keyWord === likeArray[i]) {
+                        likePic = picArray[j].image;
+                    }
+                }
+                $('<img  src="'+likePic+'" class="likePic"/> ').appendTo(divID);
+                
+                
+                
                 
                 
             }
@@ -734,6 +806,9 @@
                     document.getElementById('rightDiv').style.visibility = "hidden";
                     document.getElementById('backDiv').style.visibility = "visible";
                     document.getElementById('middleDiv').style.visibility = "hidden";
+            document.getElementById('LikeDiv').style.visibility = "hidden";
+            $('.smallLikeDiv').remove();
+                    //document.getElementsByClassName('smallLikeDiv').style.visibility = "hidden";
                     var height = $(window).height(); 
                     $("#Container").height(height);
             $("#Container").height($('#imageDiv').height());
@@ -753,11 +828,12 @@
         var counter = 2;
         var likes = 0;
         function likeImage(stay) {
+            
             if (stay === 'pic1') {
                 picOne.likes++;
-                $('#pic2').attr("src", picArray[counter].image);
-                picTwo = picArray[counter];
-                counter++;
+                $('#pic2').attr("src", picArray[index].image);
+                picTwo = picArray[index];
+                index++;
                 if (picOne.likes == 3) {
                     search(picOne.keyWord);
                     showMap();
@@ -767,11 +843,11 @@
             }
             if (stay === 'pic2') {
                 picTwo.likes++;
-                $('#pic1').attr("src", picArray[counter].image);
+                $('#pic1').attr("src", picArray[index].image);
                 
                 
-                picOne = picArray[counter];
-                counter++;
+                picOne = picArray[index];
+                index++;
                 if (picTwo.likes == 3) {
                     search(picTwo.keyWord);
                     showMap();
