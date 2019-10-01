@@ -26,7 +26,7 @@
         }
         img{
       
-            height: 50%;
+            height: 47%;
             width: 100%;
         }
 		body {
@@ -241,6 +241,9 @@
 			display: flex;
 			flex-direction: column;
 		}
+        #neitherDiv{
+            text-align:center;
+        }
 
 		.messagesPanel {
 			overflow-y: scroll;
@@ -263,6 +266,13 @@
             width: 100%;
             xheight: 94%;
         }
+        #neitherButton {
+           border-style: solid;
+           background-color: grey;
+           height: 6vh;
+           width:46vw;
+           font-size:8vw;
+       }
 		.chatInputPanel {
 			height: 40px;
 			margin-top: 10px;
@@ -588,6 +598,7 @@
         function back() {
             var div = document.getElementsByClassName('rightDiv');
             document.getElementById('LikeDiv').style.visibility = "hidden";
+            document.getElementById('neitherDiv').style.visibility = "visible";
             document.getElementById('pic1').style.visibility = "visible";
             document.getElementById('pic2').style.visibility = "visible";
             document.getElementById('frame').style.visibility = "hidden";
@@ -697,6 +708,7 @@
                         document.getElementById('pic1').style.visibility = "hidden";
                         document.getElementById('pic2').style.visibility = "hidden";
                         document.getElementById('middleDiv').style.visibility = "hidden";
+                        document.getElementById('neitherDiv').style.visibility = "hidden";
                         $('.smallLikeDiv').remove();
 					}
 					else {
@@ -799,6 +811,7 @@
         
         function showMap() {
             document.getElementById('frame').style.visibility = "visible";
+            document.getElementById('neitherDiv').style.visibility = "hidden";
                     document.getElementById('pic1').style.visibility = "hidden";
                     document.getElementById('pic2').style.visibility = "hidden";
                     document.getElementById('startHead').style.visibility = "hidden";
@@ -854,6 +867,17 @@
                     SavePic(picTwo.keyWord);
                 }
             }
+            if (stay === 'neither') {
+               // if Neither Button is pressed, both images will be replaced with new images.
+               index++;
+               $('#pic1').attr("src", picArray[index].image);
+                picOne = picArray[index];
+                
+               index++
+               $('#pic2').attr("src", picArray[index].image);
+               picTwo = picArray[index];
+                index++;
+           }
             
         }
         
@@ -903,7 +927,10 @@
                 <img id="pic1" src="#" alt="pic" onclick="likeImage('pic1')" />
 
                 <img id="pic2" src="#" alt="pic" onclick="likeImage('pic2')" />
-
+                <div id="neitherDiv">
+                    <!--Neither Button Tag-->
+                    <button id="neitherButton" type="button" onclick="likeImage('neither')"> Neither! </button>
+                </div>
             </div>
             <div id="newAccountPanel" class="contentPanel newAccountPanel">
                 <div class="newAccountBox">
@@ -969,7 +996,8 @@
                     style="position:absolute; top:0; left: 0"></iframe>
         </div>
         <br>
-        
+       
+       
 
 
     </div>
